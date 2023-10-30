@@ -94,10 +94,8 @@ class Level:
                 x = colIndex * tile_size
                 y = rowIndex * tile_size
                 if col=="2":
-                    print("PASE POR ESTE IF")
                     sprite = Player((x,y),self.display_surface,self.createJumpParticles)
                     self.player.add(sprite)
-                    print(self.player.sprite)
                 if col=="3":
                     sprite=goal(tile_size,x,y)
                     self.goal.add(sprite)

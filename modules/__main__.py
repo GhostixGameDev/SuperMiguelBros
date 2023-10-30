@@ -10,20 +10,24 @@ import pygame
 
 #Other modules of the game
 from level import *
-from tiles import Tile
 from textHandler import Text
 from levelEditor import *
 from miscFunctions import *
 from configLoader import *
 
+#Classes
 
+class Game:
+    def __init__(self):
+        self.overworld = Overworld()
+    def run(self):
+        self.overworld.run()
+#==========================================================
 
 #Global variables.
 level=0
 gameVer="Alpha 0.0.1"
-
-#==========================================================
-
+game=Game()
 
 def main(gameVer):
     icono=pygame.image.load("../icon.ico")
@@ -39,13 +43,13 @@ def main(gameVer):
     pygame.display.set_icon(icono)
     clock=pygame.time.Clock()
 
-    levelMap = Level(level0, pantalla)
+    #levelMap = Level(level0, pantalla)
     while jugando:
 
         #EVENTOS DE PANTALLA
         #================================================================
         pantalla.fill((0,0,0))
-        levelMap.run()
+        #levelMap.run()
 
         pygame.display.flip()
 
@@ -56,7 +60,7 @@ def main(gameVer):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 jugando=False
-
+        game.run()
 
 if __name__ == '__main__':
     main(gameVer)
