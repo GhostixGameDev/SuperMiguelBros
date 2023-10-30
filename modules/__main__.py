@@ -10,6 +10,7 @@ import pygame
 
 #Other modules of the game
 from level import *
+from modules.overworld import Overworld
 from textHandler import Text
 from levelEditor import *
 from miscFunctions import *
@@ -18,8 +19,10 @@ from configLoader import *
 #Classes
 
 class Game:
-    def __init__(self):
-        self.overworld = Overworld()
+    def __init__(self,surface):
+        self.maxLevel=0
+        self.surface=surface
+        self.overworld = Overworld(0,self.maxLevel,self.surface)
     def run(self):
         self.overworld.run()
 #==========================================================
@@ -27,28 +30,31 @@ class Game:
 #Global variables.
 level=0
 gameVer="Alpha 0.0.1"
-game=Game()
+
 
 def main(gameVer):
-    icono=pygame.image.load("../icon.ico")
-    jugando = True
+    icon=pygame.image.load("../icon.ico")
+    playing = True
     if firstTime:
-        pantalla=pygame.display.set_mode(primaryMonitorSize())
+        screen=pygame.display.set_mode(primaryMonitorSize())
     else:
-        pantalla = pygame.display.set_mode((width, height))
+        screen = pygame.display.set_mode((width, height))
     MaxFPS = 60
+    game = Game(screen)
     TargetFPS = 60
     pygame.init()
     pygame.display.set_caption("Super Miguel Bros v"+gameVer)
-    pygame.display.set_icon(icono)
+    pygame.display.set_icon(icon)
     clock=pygame.time.Clock()
 
-    #levelMap = Level(level0, pantalla)
-    while jugando:
+    #levelMap = Level(level0, screen)
+    while playing:
 
         #EVENTOS DE PANTALLA
         #================================================================
-        pantalla.fill((0,0,0))
+
+        screen.fill((0,0,0))
+        game.run()
         #levelMap.run()
 
         pygame.display.flip()
@@ -59,8 +65,8 @@ def main(gameVer):
         #Cierre del juego:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                jugando=False
-        game.run()
+                playing=False
+
 
 if __name__ == '__main__':
     main(gameVer)
