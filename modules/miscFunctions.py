@@ -2,6 +2,11 @@ import pygame
 from pygame import transform
 from screeninfo import get_monitors
 from os import walk
+from csv import reader
+
+from modules.levelEditor import tile_size
+
+
 def posinega(numero):
     if numero > 0:
         return 1
@@ -30,3 +35,24 @@ def importFolderImages(path):
             sprite=pygame.image.load(fullPath).convert_alpha()
             spritesheet.append(sprite)
     return spritesheet
+def importCsvLayout(path):
+    terrainMap=[]
+    with open(path) as map:
+        level=reader(map,delimiter=",")
+        for row in level:
+            terrainMap.append(list(row))
+        return terrainMap
+
+def importCutSpritesheet(path):
+    surface=pygame.image.load(path).convert_alpha()
+    tileNumX=int(surface.get_size()[0]/tile_size)
+    tileNumY=int(surface.get_size()[1]/tile_size)
+    cutTiles=[]
+    for row in range(tileNumY):
+        for col in range(tileNumX):
+            x=col*tile_size
+            y=row*tile_size
+            newSurface=pygame.Surface((tile_size,tile_size),flags=pygame.SRCALPHA)
+            newSurface.blit(surface,(0,0),pygame.Rect(x,y,tile_size,tile_size))
+            cutTiles.append(newSurface)
+    return cutTiles

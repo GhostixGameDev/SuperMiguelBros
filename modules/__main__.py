@@ -32,7 +32,6 @@ def main(gameVer):
         pantalla=pygame.display.set_mode(primaryMonitorSize())
     else:
         pantalla = pygame.display.set_mode((width, height))
-    background=scale(pygame.image.load("../assets/sprites/background/backgrounds.png"), width, height)
     MaxFPS = 60
     TargetFPS = 60
     pygame.init()
@@ -40,13 +39,12 @@ def main(gameVer):
     pygame.display.set_icon(icono)
     clock=pygame.time.Clock()
 
-    levelMap = Level(level_map, pantalla)
+    levelMap = Level(level0, pantalla)
     while jugando:
 
         #EVENTOS DE PANTALLA
         #================================================================
         pantalla.fill((0,0,0))
-        pantalla.blit(background, (0, 0))
         levelMap.run()
 
         pygame.display.flip()
