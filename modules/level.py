@@ -1,7 +1,7 @@
 import pygame
 
-from modules.miscFunctions import importCsvLayout, importCutSpritesheet
-from modules.particleHandler import ParticleEffect
+from miscFunctions import importCsvLayout, importCutSpritesheet
+from particleHandler import ParticleEffect
 from tiles import Tile, staticTile, box, coin, luckyblock, goal
 from levelEditor import *
 from enemy import enemy
@@ -179,6 +179,7 @@ class Level:
         self.coinsSprites.update(self.world_shift)
         self.EnemySprites.draw(self.display_surface)
         self.EnemySprites.update(self.world_shift)
+        self.constraintSprites.update(self.world_shift)
         self.enemyCollisionReverse()
         self.decorationSprites.draw(self.display_surface)
         self.decorationSprites.update(self.world_shift)
