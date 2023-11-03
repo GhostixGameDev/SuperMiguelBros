@@ -4,7 +4,7 @@ from screeninfo import get_monitors
 from os import walk
 from csv import reader
 
-from modules.levelEditor import tile_size
+from levelEditor import tile_size
 
 
 def posinega(numero):
