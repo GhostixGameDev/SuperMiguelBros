@@ -10,7 +10,7 @@ import pygame
 
 #Other modules of the game
 from level import *
-from modules.overworld import Overworld
+from overworld import Overworld
 from textHandler import Text
 from levelEditor import *
 from miscFunctions import *
