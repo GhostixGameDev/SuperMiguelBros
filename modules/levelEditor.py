@@ -21,7 +21,7 @@ else:
     screenWidth=width
 screenheight = verticalTileNumber*tile_size
 
-level0={
+Level0={
     "background": "../levels/0/level_0_background.csv",
     "boxes":"../levels/0/level_0_boxes.csv",
     "coins":"../levels/0/level_0_coins.csv",
@@ -31,6 +31,39 @@ level0={
     "enemys":"../levels/0/level_0_enemys.csv",
     "luckyblocks":"../levels/0/level_0_luckyblocks.csv",
     "decoration":"../levels/0/level_0_windows and doors.csv"
+}
+Level1={
+    "background": "../levels/1/level_1_background.csv",
+    "boxes":"../levels/1/level_1_boxes.csv",
+    "coins":"../levels/1/level_1_coins.csv",
+    "constraints":"../levels/1/level_1_constraints.csv",
+    "constraints2":"../levels/1/level_1_constraints2.csv",
+    "constraints3": "../levels/1/level_1_constraints3.csv",
+    "enemys":"../levels/1/level_1_enemys.csv",
+    "luckyblocks":"../levels/1/level_1_luckyblocks.csv",
+    "decoration":"../levels/1/level_1_windows and doors.csv"
+}
+Level2={
+    "background": "../levels/2/level_2_background.csv",
+    "boxes":"../levels/2/level_2_boxes.csv",
+    "coins":"../levels/2/level_2_coins.csv",
+    "constraints":"../levels/2/level_2_constraints.csv",
+    "constraints2":"../levels/2/level_2_constraints2.csv",
+    "constraints3": "../levels/2/level_2_constraints3.csv",
+    "enemys":"../levels/2/level_2_enemys.csv",
+    "luckyblocks":"../levels/2/level_2_luckyblocks.csv",
+    "decoration":"../levels/2/level_2_windows and doors.csv"
+}
+Level3={
+    "background": "../levels/3/level_3_background.csv",
+    "boxes":"../levels/3/level_3_boxes.csv",
+    "coins":"../levels/3/level_3_coins.csv",
+    "constraints":"../levels/3/level_3_constraints.csv",
+    "constraints2":"../levels/3/level_3_constraints2.csv",
+    "constraints3": "../levels/3/level_3_constraints3.csv",
+    "enemys":"../levels/3/level_3_enemys.csv",
+    "luckyblocks":"../levels/3/level_3_luckyblocks.csv",
+    "decoration":"../levels/3/level_3_windows and doors.csv"
 }
 
 

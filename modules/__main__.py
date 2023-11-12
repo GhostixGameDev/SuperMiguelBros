@@ -12,7 +12,7 @@ import pygame
 from level import *
 from overworld import Overworld
 from textHandler import Text
-from levelEditor import *
+from gameData import *
 from miscFunctions import *
 from configLoader import *
 
@@ -20,11 +20,23 @@ from configLoader import *
 
 class Game:
     def __init__(self,surface):
-        self.maxLevel=0
+        self.maxLevel=1
         self.surface=surface
-        self.overworld = Overworld(0,self.maxLevel,self.surface)
+        self.status=0
+        self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
+    def createLevel(self,currentLevel):
+        self.levelMap = Level(currentLevel, self.surface,self.createOverworld)
+        self.status=1
+    def createOverworld(self,currentLevel,newMaxLevel):
+        if newMaxLevel>self.maxLevel:
+            self.maxLevel=newMaxLevel
+        self.overworld = Overworld(currentLevel,self.maxLevel,self.surface,self.createLevel)
+        self.status=0
     def run(self):
-        self.overworld.run()
+        if self.status==0:
+            self.overworld.run()
+        else:
+            self.levelMap.run()
 #==========================================================
 
 #Global variables.
@@ -47,15 +59,12 @@ def main(gameVer):
     pygame.display.set_icon(icon)
     clock=pygame.time.Clock()
 
-    #levelMap = Level(level0, screen)
+
     while playing:
 
         #EVENTOS DE PANTALLA
         #================================================================
-
-        screen.fill((0,0,0))
         game.run()
-        #levelMap.run()
 
         pygame.display.flip()
 

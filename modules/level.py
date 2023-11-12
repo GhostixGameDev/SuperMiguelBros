@@ -3,15 +3,19 @@ import pygame
 from miscFunctions import importCsvLayout, importCutSpritesheet
 from particleHandler import ParticleEffect
 from tiles import Tile, staticTile, box, coin, luckyblock, goal
-from levelEditor import *
+from gameData import *
 from enemy import enemy
 from playerController import Player
 class Level:
-    def __init__(self, leveldata, surface):
+    def __init__(self, currentLevel, surface,createOverworld):
         #Level setup
         self.display_surface=surface
         self.world_shift=0
-
+        self.currentLevel=currentLevel
+        levelMeta=levels[currentLevel]
+        leveldata=levelMeta["content"]
+        self.newMaxLevel=levelMeta["unlock"]
+        self.createOverworld=createOverworld
         #Player
         playerLayout= importCsvLayout(leveldata["constraints3"])
         self.player=pygame.sprite.GroupSingle()
@@ -47,7 +51,10 @@ class Level:
         self.dustSprite=pygame.sprite.GroupSingle()
         self.playerOnGround = False
 
-
+    def input(self):
+        key=pygame.key.get_pressed()
+        if key[pygame.K_ESCAPE]:
+            self.createOverworld(self.currentLevel,0)
     def createTileGroup(self,layout,type):
         spriteGroup=pygame.sprite.Group()
         for rowIndex,row in enumerate(layout):
@@ -99,7 +106,12 @@ class Level:
                 if col=="3":
                     sprite=goal(tile_size,x,y)
                     self.goal.add(sprite)
-
+    def checkDeath(self):
+        if self.player.sprite.rect.top>screenheight:
+            self.createOverworld(self.currentLevel,0)
+    def checkWin(self):
+        if pygame.sprite.spritecollide(self.player.sprite,self.goal,False):
+            self.createOverworld(self.currentLevel,self.newMaxLevel)
     def createJumpParticles(self,pos):
         if self.player.sprite.facingRight:
             pos-=pygame.math.Vector2(10,5)
@@ -166,6 +178,7 @@ class Level:
                     player.direction.y=0
 
     def run(self):
+        self.display_surface.fill((0,0,0))
         #Particle loader
         self.dustSprite.update(self.world_shift)
         self.dustSprite.draw(self.display_surface)
@@ -196,6 +209,9 @@ class Level:
         self.player.update()
         self.goal.draw(self.display_surface)
         self.player.draw(self.display_surface)
+        self.checkDeath()
+        self.checkWin()
+        self.input()
 
         self.isPlayerOnGround()
         self.horizontal_movement_collision()
