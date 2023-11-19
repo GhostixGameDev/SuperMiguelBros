@@ -209,9 +209,15 @@ class Level:
                 enemyCenter=enemy.rect.centery
                 enemyTop=enemy.rect.top
                 playerBottom=self.player.sprite.rect.bottom
-                if enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0:
+                if enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0 and enemy.deadMoving:
                     self.player.sprite.direction.y=-15
                     enemy.kill()
+                elif enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0:
+                    self.player.sprite.direction.y = -15
+                    if enemy.dead and not enemy.deadMoving:
+                        enemy.deadMoving=True
+                    enemy.dead=True
+
                 else:
                     self.player.sprite.getDamage()
 
