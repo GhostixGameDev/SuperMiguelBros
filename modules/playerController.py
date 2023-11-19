@@ -1,9 +1,11 @@
 import pygame
 from miscFunctions import scale
 from miscFunctions import importFolderImages
+from math import sin
 class Player(pygame.sprite.Sprite):
-    def __init__(self,pos,surface,createJumpParticles):
+    def __init__(self,pos,surface,createJumpParticles,updateLives):
         super().__init__()
+        self.updateLives=updateLives
         self.importCharacterAssets()
         self.importDustParticles()
         self.dustState="land"
@@ -20,7 +22,11 @@ class Player(pygame.sprite.Sprite):
         self.gravity=0.8
         self.jump_speed=-16
         self.onground=True
-
+        self.invincible=False
+        self.invincibilityDuration=2000
+        self.hurtTime=0
+        #audio
+        self.jumpSound=pygame.mixer.Sound("../assets/sounds/jump.ogg")
         #Anim States
         self.animationState="idle"
         self.facingRight=True
@@ -72,6 +78,12 @@ class Player(pygame.sprite.Sprite):
             self.image = image
         else:
             self.image = pygame.transform.flip(image,True,False)
+        if self.invincible:
+            alpha=self.waveValue()
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
+        self.rect=self.image.get_rect(midbottom=self.rect.midbottom)
 
     def get_input(self):
         keys=pygame.key.get_pressed()
@@ -104,10 +116,30 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.direction.y
     def jump(self):
         if self.onground:
+            self.jumpSound.play()
             self.direction.y = self.jump_speed
             self.onground=False
+    def getDamage(self):
+        if not self.invincible:
+            self.updateLives(-1)
+            self.invincible=True
+            self.hurtTime=pygame.time.get_ticks()
+
+    def invincibilityTimer(self):
+        if self.invincible:
+            currentTime=pygame.time.get_ticks()
+            if currentTime-self.hurtTime>=self.invincibilityDuration:
+                self.invincible=False
+    def waveValue(self):
+        value=sin(pygame.time.get_ticks())
+        if value>=0:
+            return 255
+        else:
+            return 0
     def update(self):
         self.get_input()
         self.getStatus()
         self.animate()
         self.animateDust()
+        self.waveValue()
+        self.invincibilityTimer()

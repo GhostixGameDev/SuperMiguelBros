@@ -7,20 +7,27 @@ from gameData import *
 from enemy import enemy
 from playerController import Player
 class Level:
-    def __init__(self, currentLevel, surface,createOverworld):
+    def __init__(self, currentLevel, surface,createOverworld,updateCoins,coins,updateLives,createLevel):
         #Level setup
         self.display_surface=surface
         self.world_shift=0
         self.currentLevel=currentLevel
+        self.updateCoins=updateCoins
         levelMeta=levels[currentLevel]
         leveldata=levelMeta["content"]
         self.newMaxLevel=levelMeta["unlock"]
         self.createOverworld=createOverworld
+        self.createLevel=createLevel
         #Player
         playerLayout= importCsvLayout(leveldata["constraints3"])
         self.player=pygame.sprite.GroupSingle()
         self.goal=pygame.sprite.GroupSingle()
+        self.coins=coins
+        self.updateLives=updateLives
         self.playerSetup(playerLayout)
+
+        #Audio
+        self.coinSound=pygame.mixer.Sound("../assets/sounds/coin.ogg")
 
         #Layouts
         boxesLayout=importCsvLayout(leveldata["boxes"])
@@ -72,11 +79,14 @@ class Level:
 
                         if type=="coins":
                             coinpath=""
-                            if col==0:
+                            value=0
+                            if col=="0":
                                 coinpath="../assets/sprites/objects/coins/gold"
+                                value=5
                             else:
                                 coinpath="../assets/sprites/objects/coins/silver"
-                            sprite=coin(tile_size,x,y,coinpath)
+                                value=1
+                            sprite=coin(tile_size,x,y,coinpath,value)
                         if type=="decoration":
                             decoTileList=importCutSpritesheet("../assets/sprites/background/tiles/backgroundTiles.png")
                             tileSurface=decoTileList[int(col)]
@@ -88,7 +98,13 @@ class Level:
                         if type=="constraints2":
                             sprite=Tile(tile_size,x,y)
                         if type== "luckyblocks":
-                            sprite=luckyblock(tile_size,x,y)
+                            if col=="1":
+                                blockpath="../assets/sprites/objects/luckyblock/sliced/luckyBlock02.png"
+                                state=0
+                            else:
+                                blockpath = "../assets/sprites/objects/luckyblock/sliced/luckyBlock01.png"
+                                state = 1
+                            sprite=luckyblock(tile_size,x,y,blockpath,state)
 
 
 
@@ -101,17 +117,19 @@ class Level:
                 x = colIndex * tile_size
                 y = rowIndex * tile_size
                 if col=="2":
-                    sprite = Player((x,y),self.display_surface,self.createJumpParticles)
+                    sprite = Player((x,y),self.display_surface,self.createJumpParticles,self.updateLives)
                     self.player.add(sprite)
                 if col=="3":
                     sprite=goal(tile_size,x,y)
                     self.goal.add(sprite)
-    def checkDeath(self):
+    def checkPlayerDownMap(self):
         if self.player.sprite.rect.top>screenheight:
-            self.createOverworld(self.currentLevel,0)
+            self.updateLives(-1)
+            self.createLevel(self.currentLevel)
     def checkWin(self):
         if pygame.sprite.spritecollide(self.player.sprite,self.goal,False):
-            self.createOverworld(self.currentLevel,self.newMaxLevel)
+            self.createOverworld(self.currentLevel,self.newMaxLevel,True)
+
     def createJumpParticles(self,pos):
         if self.player.sprite.facingRight:
             pos-=pygame.math.Vector2(10,5)
@@ -132,7 +150,7 @@ class Level:
                 offset = pygame.math.Vector2(-10, 15)
             landDustParticle=ParticleEffect(self.player.sprite.rect.midbottom-offset,"land")
             self.dustSprite.add(landDustParticle)
-    def scroll_x(self):
+    def scrollX(self):
         player = self.player.sprite
         player_x=player.rect.centerx
         direction_x=player.direction.x
@@ -151,7 +169,7 @@ class Level:
         for enemy in self.EnemySprites.sprites():
             if pygame.sprite.spritecollide(enemy,self.constraintSprites,False):
                 enemy.reverse()
-    def horizontal_movement_collision(self):
+    def horizontalMovementCollision(self):
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
         #Select wich things have collisions
@@ -162,7 +180,7 @@ class Level:
                     player.rect.left=sprite.rect.right
                 elif player.direction.x>0:
                     player.rect.right=sprite.rect.left
-    def vertical_movement_collision(self):
+    def verticalMovementCollision(self):
         player = self.player.sprite
         player.apply_gravity()
         #Select wich things have collisions
@@ -177,6 +195,33 @@ class Level:
                     player.rect.top=sprite.rect.bottom
                     player.direction.y=0
 
+    def checkCoinCollision(self):
+        collidedCoins=pygame.sprite.spritecollide(self.player.sprite,self.coinsSprites,True)
+        if collidedCoins:
+            for coin in collidedCoins:
+                self.coinSound.play()
+                self.coins+=coin.value
+                self.updateCoins(self.coins)
+    def checkEnemyCollisions(self):
+        enemyCollisions=pygame.sprite.spritecollide(self.player.sprite,self.EnemySprites,False)
+        if enemyCollisions:
+            for enemy in enemyCollisions:
+                enemyCenter=enemy.rect.centery
+                enemyTop=enemy.rect.top
+                playerBottom=self.player.sprite.rect.bottom
+                if enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0:
+                    self.player.sprite.direction.y=-15
+                    enemy.kill()
+                else:
+                    self.player.sprite.getDamage()
+
+    def newLife(self):
+        if self.coins>=100:
+            self.coins=0
+            self.updateLives(1)
+
+
+
     def run(self):
         self.display_surface.fill((0,0,0))
         #Particle loader
@@ -186,38 +231,48 @@ class Level:
         #Level tilemap
         self.backgroundSprites.draw(self.display_surface)
         self.backgroundSprites.update(self.world_shift)
-        self.boxesSprites.draw(self.display_surface)
-        self.boxesSprites.update(self.world_shift)
-        self.coinsSprites.draw(self.display_surface)
-        self.coinsSprites.update(self.world_shift)
-        self.EnemySprites.draw(self.display_surface)
-        self.EnemySprites.update(self.world_shift)
-        self.constraintSprites.update(self.world_shift)
-        self.enemyCollisionReverse()
-        self.decorationSprites.draw(self.display_surface)
-        self.decorationSprites.update(self.world_shift)
-        self.luckyBlocksSprites.draw(self.display_surface)
-        self.luckyBlocksSprites.update(self.world_shift)
-        self.scroll_x()
-
         #dust
         self.dustSprite.update(self.world_shift)
         self.dustSprite.draw(self.display_surface)
+        #boxes
+        self.boxesSprites.draw(self.display_surface)
+        self.boxesSprites.update(self.world_shift)
+        #coins
+        self.coinsSprites.draw(self.display_surface)
+        self.coinsSprites.update(self.world_shift)
+        #enemys
+        self.EnemySprites.draw(self.display_surface)
+        self.EnemySprites.update(self.world_shift)
+        #constraints
+        self.constraintSprites.update(self.world_shift)
+        self.enemyCollisionReverse()
+        #decoration
+        self.decorationSprites.draw(self.display_surface)
+        self.decorationSprites.update(self.world_shift)
+        #LuckyBlocks
+        self.luckyBlocksSprites.draw(self.display_surface)
+        self.luckyBlocksSprites.update(self.world_shift)
+        #Camera
+        self.scrollX()
+
+
 
         #Player
         self.goal.update(self.world_shift)
         self.player.update()
         self.goal.draw(self.display_surface)
         self.player.draw(self.display_surface)
-        self.checkDeath()
+        self.checkPlayerDownMap()
         self.checkWin()
+        self.checkCoinCollision()
+        self.newLife()
+        self.checkEnemyCollisions()
         self.input()
 
         self.isPlayerOnGround()
-        self.horizontal_movement_collision()
-        self.vertical_movement_collision()
+        self.horizontalMovementCollision()
+        self.verticalMovementCollision()
         self.createLandingDust()
-
 
 
 

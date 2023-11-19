@@ -43,6 +43,11 @@ class Overworld:
         #Assets
         self.setupNodes()
         self.setupPlayer()
+
+        #timers
+        self.startTime=pygame.time.get_ticks()
+        self.allowInput=True
+        self.timerLength=500
     #Creation of new levels in the menu
     def setupNodes(self):
         self.nodes=pygame.sprite.Group()
@@ -71,7 +76,7 @@ class Overworld:
                 pass
     def input(self):
         key=pygame.key.get_pressed()
-        if not self.moving:
+        if not self.moving and self.allowInput:
             if key[pygame.K_d] and self.currentLevel!=self.maxLevel:
                 self.moveDirection=self.getMovementData(1)
                 self.currentLevel+=1
@@ -93,6 +98,11 @@ class Overworld:
             if targetNode.checkPoint.collidepoint(self.player.sprite.pos):
                 self.moving=False
                 self.moveDirection=pygame.math.Vector2(0,0)
+    def inputTimer(self):
+        if not self.allowInput:
+            currentTime=pygame.time.get_ticks()
+            if currentTime-self.startTime>=self.timerLength:
+                allowInput=True
     def run(self):
         self.displaySurface.fill("#008c96")
         self.input()
@@ -100,5 +110,6 @@ class Overworld:
         self.player.update()
         self.updatePlayerPos()
         self.drawLines()
+        self.inputTimer()
         self.nodes.draw(self.displaySurface)
         self.player.draw(self.displaySurface)

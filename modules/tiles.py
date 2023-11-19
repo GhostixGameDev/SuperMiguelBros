@@ -34,19 +34,22 @@ class animatedTile(Tile):
         self.rect.x += x_shift
 
 class coin(animatedTile):
-    def __init__(self,size,x,y,path):
+    def __init__(self,size,x,y,path,value):
         super().__init__(size,x,y,path)
         centerX=x+int(size/2)
         centerY=y+int(size/2)
         self.rect=self.image.get_rect(center=(centerX,centerY))
+        self.value=value
+
 class box(staticTile):
     def __init__(self,size,x,y):
         super().__init__(size,x,y,scale(pygame.image.load("../assets/sprites/objects/box.png").convert_alpha(),64,64))
 class luckyblock(staticTile):
-    def __init__(self,size,x,y):
-        super().__init__(size,x,y,pygame.image.load("../assets/sprites/objects/luckyblock/sliced/luckyBlock01.png").convert_alpha())
-    def deactivate(self):
-        self.image=self.image.load("../assets/sprites/objects/luckyblock/sliced/luckyBlock02.png").convert_alpha()
+    def __init__(self, size, x, y, path, state):
+        super().__init__(size, x, y,pygame.image.load(path).convert_alpha())
+        self.state = state
+    def updateState(self,state):
+        self.state = state
 class goal(staticTile):
     def __init__(self,size,x,y):
         super().__init__(size,x,y,pygame.image.load("../assets/sprites/objects/goal/goal.png").convert_alpha())
