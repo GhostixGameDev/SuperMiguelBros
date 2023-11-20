@@ -38,7 +38,7 @@ class Game:
         #overworld things
         self.surface=surface
         self.status=0
-        self.gameMusic.play()
+        self.gameMusic.play(-1)
         self.UI=UI(self.surface)
         self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
 
