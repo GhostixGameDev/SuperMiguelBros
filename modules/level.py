@@ -1,7 +1,7 @@
 import pygame
 
 from miscFunctions import importCsvLayout, importCutSpritesheet
-from particleHandler import ParticleEffect
+from particleHandler import ParticleEffect, JoJoLikeText
 from tiles import Tile, staticTile, box, coin, luckyblock, goal
 from gameData import *
 from enemy import enemy
@@ -25,6 +25,11 @@ class Level:
         self.coins=coins
         self.updateLives=updateLives
         self.playerSetup(playerLayout)
+
+        #LOL
+        self.JoJoText=JoJoLikeText("../assets/fonts/SF Fedora.ttf", 20, self.display_surface)
+        self.JoJoText2 = JoJoLikeText("../assets/fonts/SF Fedora.ttf", 20, self.display_surface)
+        self.stopJojo=True
 
         #Audio
         self.coinSound=pygame.mixer.Sound("../assets/sounds/coin.ogg")
@@ -208,12 +213,19 @@ class Level:
             for enemy in enemyCollisions:
                 enemyCenter=enemy.rect.centery
                 enemyTop=enemy.rect.top
+                self.stopJojo=True
                 playerBottom=self.player.sprite.rect.bottom
                 if enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0 and enemy.deadMoving:
                     self.player.sprite.direction.y=-15
                     enemy.kill()
+                    self.stopJoJo=True
+                    self.JoJoText.pastTime=pygame.time.get_ticks()
+                    self.JoJoText2.pastTime=pygame.time.get_ticks()
                 elif enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0:
                     self.player.sprite.direction.y = -15
+                    self.stopJojo=False
+                    self.JoJoText.pastTime=pygame.time.get_ticks()
+                    self.JoJoText2.pastTime=pygame.time.get_ticks()
                     if enemy.dead and not enemy.deadMoving:
                         enemy.deadMoving=True
                     enemy.dead=True
@@ -273,6 +285,13 @@ class Level:
         self.checkCoinCollision()
         self.newLife()
         self.checkEnemyCollisions()
+        self.JoJoText.update(self.world_shift)
+        self.JoJoText2.update(self.world_shift)
+
+        if not self.stopJojo:
+            self.stopJojo = self.JoJoText.textTimer()
+            self.JoJoText.draw("Gracias por no",(0,0,0),self.player.sprite.rect.x+40,self.player.sprite.rect.y+20)
+            self.JoJoText2.draw("Usar los celulares...",(0,0,0),self.player.sprite.rect.x+60,self.player.sprite.rect.y+30)
         self.input()
 
         self.isPlayerOnGround()
