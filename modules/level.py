@@ -166,33 +166,32 @@ class Level:
         if playerX<screenWidth /4 and directionX<0:
             self.worldShiftX=4
             player.rect.centerx=player.rect.centerx+scale#*2
-            player.speed=1
+            player.speed=0
         elif playerX>screenWidth - (screenWidth/4) and directionX>0:
             self.worldShiftX=-4
             player.rect.centerx = player.rect.centerx - scale
-            player.speed=1
+            player.speed=0
         elif self.initScrolled==1:
             self.worldShiftX=0
             player.speed=4
     def scrollY(self):
         player = self.player.sprite
-        playerY=player.rect.centery
-        playerGravity=player.gravity
+        playerY=player.rect.center
         originalGravity=0.8*scale
         directionY=player.direction.y
 
-        if playerY<height /5 and directionY>playerGravity:
+        if playerY<height /5 and directionY>originalGravity:
             print("Im up")
             self.worldShiftY=4
-            playerGravity=0
+            player.gravity=0
             player.rect.centery=player.rect.centery+scale#*2
         elif playerY>height - (height/2): #and directionY<playerJumpSpeed:
             print("im down")
             self.worldShiftY=-4
             player.rect.centery = player.rect.centery - scale
-            playerGravity=0
+            player.gravity=0
         else:
-            playerGravity=originalGravity
+            player.gravity=originalGravity
             self.worldShiftY=0
 
     def initialScroll(self):
@@ -224,28 +223,29 @@ class Level:
                 enemy.reverse()
     def horizontalMovementCollision(self):
         player = self.player.sprite
-        player.rect.x += player.direction.x * player.speed
+        player.collisionRect.x += player.direction.x * player.speed
         #Select wich things have collisions
         collidableSprites=self.boxesSprites.sprites() + self.luckyBlocksSprites.sprites()
         for sprite in collidableSprites:
-            if sprite.rect.colliderect(player):
+            if sprite.rect.colliderect(player.collisionRect):
                 if player.direction.x <0:
-                    player.rect.left=sprite.rect.right
+                    player.collisionRect.left=sprite.rect.right
                 elif player.direction.x>0:
-                    player.rect.right=sprite.rect.left
+                    player.collisionRect.right=sprite.rect.left
     def verticalMovementCollision(self):
         player = self.player.sprite
         player.apply_gravity()
+
         #Select wich things have collisions
         collidableSprites=self.boxesSprites.sprites() + self.luckyBlocksSprites.sprites()
         for sprite in collidableSprites:
-            if sprite.rect.colliderect(player):
+            if sprite.rect.colliderect(player.collisionRect):
                 if player.direction.y >0:
-                    player.rect.bottom=sprite.rect.top
+                    player.collisionRect.bottom=sprite.rect.top
                     player.direction.y=0
                     player.onground = True
                 elif player.direction.y<0:
-                    player.rect.top=sprite.rect.bottom
+                    player.collisionRect.top=sprite.rect.bottom
                     player.direction.y=0
 
     def checkCoinCollision(self):
@@ -264,13 +264,13 @@ class Level:
                 self.stopJojo=True
                 playerBottom=self.player.sprite.rect.bottom
                 if enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0 and enemy.deadMoving:
-                    self.player.sprite.direction.y=-15
+                    self.player.sprite.direction.y=-15*scale
                     enemy.kill()
                     self.stopJoJo=True
                     self.JoJoText.pastTime=pygame.time.get_ticks()
                     self.JoJoText2.pastTime=pygame.time.get_ticks()
                 elif enemyTop<playerBottom<enemyCenter and self.player.sprite.direction.y>=0:
-                    self.player.sprite.direction.y = -15
+                    self.player.sprite.direction.y = -15*scale
                     self.stopJojo=False
                     self.JoJoText.pastTime=pygame.time.get_ticks()
                     self.JoJoText2.pastTime=pygame.time.get_ticks()
@@ -335,7 +335,9 @@ class Level:
         if not self.initScrolled:
             self.initialScroll()
         self.scrollX()
-        self.scrollY()
+
+        #ACTIVATE THIS FOR VERTICAL CAMERA, W.I.P IS VERY BUGGY
+        #self.scrollY()
 
 
 

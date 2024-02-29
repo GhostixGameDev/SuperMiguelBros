@@ -27,6 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.invincibilityDuration=2000
         self.hurtTime=0
         self.forceMove=False
+        self.collisionRect = pygame.Rect(self.rect.topleft, (self.rect.width - 5, self.rect.height))
         #audio
         self.jumpSound=pygame.mixer.Sound("../assets/sounds/jump.ogg")
         #Anim States
@@ -78,8 +79,10 @@ class Player(pygame.sprite.Sprite):
         image = animation[int(self.frameIndex)]
         if self.facingRight:
             self.image = image
+            self.rect.bottomleft=self.collisionRect.bottomleft
         else:
             self.image = pygame.transform.flip(image,True,False)
+            self.rect.bottomright = self.collisionRect.bottomright
         if self.invincible:
             alpha=self.waveValue()
             self.image.set_alpha(alpha)
@@ -116,7 +119,7 @@ class Player(pygame.sprite.Sprite):
     def apply_gravity(self):
         self.direction.y+=self.gravity
         print(self.direction.y)
-        self.rect.y += self.direction.y
+        self.collisionRect.y += self.direction.y
     def jump(self):
         if self.onground:
             self.jumpSound.play()
