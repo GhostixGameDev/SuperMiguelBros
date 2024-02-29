@@ -22,10 +22,13 @@ def primaryMonitorSize():
     size[0]=get_monitors()[primary].width
     size[1]=get_monitors()[primary].height
     return size
-width=1920
-height=1080
+
+#width=1920
+#height=1080
 firstTime=True #Turn it false for screen size testing
 if firstTime:
+    width=primaryMonitorSize()[0]
+    height=primaryMonitorSize()[1]
     scale=primaryMonitorSize()[0]/1366
 else:
     scale = width / 1366

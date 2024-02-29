@@ -45,8 +45,9 @@ class enemy(animatedTile):
         if self.frameIndex > int(len(self.deadFrames)):
             self.frameIndex=3
         self.image = self.deadFrames[int(self.frameIndex)]
-    def update(self,xShift):
+    def update(self,xShift,yShift):
         self.rect.x += xShift
+        self.rect.y += yShift
         if self.dead and not self.deadMoving:
             self.animateDeath()
         else:

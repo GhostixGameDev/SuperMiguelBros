@@ -40,7 +40,7 @@ class Game:
         self.status=0
         self.gameMusic.play(-1)
         self.UI=UI(self.surface)
-        self.overworld = Overworld(4, self.maxLevel, self.surface, self.createLevel)
+        self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
 
     def createLevel(self,currentLevel):
         self.levelMap = Level(currentLevel, self.surface,self.createOverworld,self.updateCoins,self.coins,self.updateLives,self.createLevel)
@@ -73,9 +73,7 @@ class Game:
                 self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
 #==========================================================
 
-#Global variables.
-level=0
-gameVer="Alpha 0.0.1"
+gameVer="Alpha 1.0.1"
 
 
 def main(gameVer):

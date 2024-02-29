@@ -19,9 +19,10 @@ class ParticleEffect(pygame.sprite.Sprite):
             self.kill()
         else:
             self.image=self.frames[int(self.frameIndex)]
-    def update(self,xShift):
+    def update(self,xShift, yShift):
         self.animate()
         self.rect.x+=xShift
+        self.rect.y+=yShift
 
 class JoJoLikeText(pygame.font.Font):
     def __init__(self,font,size,surface):
@@ -55,6 +56,7 @@ class JoJoLikeText(pygame.font.Font):
             stop=True
             #print("Current; "+str(currentTime))
             return stop
-    def update(self,xshift):
+    def update(self,xshift,yShift):
         self.x += xshift
+        self.y += yShift
         self.shake()

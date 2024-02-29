@@ -21,7 +21,7 @@ class Player(pygame.sprite.Sprite):
         self.direction=pygame.math.Vector2(0,0)
         self.speed=4*scale
         self.gravity=0.8*scale
-        self.jump_speed=-16*scale
+        self.jumpSpeed= -16 * scale
         self.onground=True
         self.invincible=False
         self.invincibilityDuration=2000
@@ -115,11 +115,12 @@ class Player(pygame.sprite.Sprite):
 
     def apply_gravity(self):
         self.direction.y+=self.gravity
+        print(self.direction.y)
         self.rect.y += self.direction.y
     def jump(self):
         if self.onground:
             self.jumpSound.play()
-            self.direction.y = self.jump_speed
+            self.direction.y = self.jumpSpeed
             self.onground=False
     def getDamage(self):
         if not self.invincible:

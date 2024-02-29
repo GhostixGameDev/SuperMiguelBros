@@ -3,6 +3,7 @@ import pygame
 from miscFunctions import importCsvLayout, importCutSpritesheet
 from particleHandler import ParticleEffect, JoJoLikeText
 from tiles import Tile, staticTile, box, coin, luckyblock, goal
+from configLoader import height
 from gameData import *
 from enemy import enemy
 from playerController import Player
@@ -10,7 +11,8 @@ class Level:
     def __init__(self, currentLevel, surface,createOverworld,updateCoins,coins,updateLives,createLevel):
         #Level setup
         self.display_surface=surface
-        self.world_shift=0
+        self.worldShiftX=0
+        self.worldShiftY=0
         self.currentLevel=currentLevel
         self.updateCoins=updateCoins
         levelMeta=levels[currentLevel]
@@ -162,16 +164,36 @@ class Level:
         directionX=player.direction.x
 
         if playerX<screenWidth /4 and directionX<0:
-            self.world_shift=4
+            self.worldShiftX=4
             player.rect.centerx=player.rect.centerx+scale#*2
             player.speed=1
         elif playerX>screenWidth - (screenWidth/4) and directionX>0:
-            self.world_shift=-4
+            self.worldShiftX=-4
             player.rect.centerx = player.rect.centerx - scale
             player.speed=1
         elif self.initScrolled==1:
-            self.world_shift=0
+            self.worldShiftX=0
             player.speed=4
+    def scrollY(self):
+        player = self.player.sprite
+        playerY=player.rect.centery
+        playerGravity=player.gravity
+        originalGravity=0.8*scale
+        directionY=player.direction.y
+
+        if playerY<height /5 and directionY>playerGravity:
+            print("Im up")
+            self.worldShiftY=4
+            playerGravity=0
+            player.rect.centery=player.rect.centery+scale#*2
+        elif playerY>height - (height/2): #and directionY<playerJumpSpeed:
+            print("im down")
+            self.worldShiftY=-4
+            player.rect.centery = player.rect.centery - scale
+            playerGravity=0
+        else:
+            playerGravity=originalGravity
+            self.worldShiftY=0
 
     def initialScroll(self):
         player = self.player.sprite
@@ -180,7 +202,7 @@ class Level:
 
         if playerX > screenWidth-500*scale:
             #print("moving left")
-            self.world_shift = -64
+            self.worldShiftX = -64
             player.rect.centerx = player.rect.centerx - scale
             player.direction.x=-1
             player.gravity=0
@@ -193,7 +215,7 @@ class Level:
             self.initScrolled=1
             player.forceMove=False
             player.invincible=False
-            self.world_shift = 0
+            self.worldShiftX = 0
             player.speed = originalSpeed
             player.gravity= 0.8*scale
     def enemyCollisionReverse(self):
@@ -260,19 +282,19 @@ class Level:
                     self.player.sprite.getDamage()
     def moveAll(self):
         #PUT ALL THINGS YOU WANT THE CAMERA TO MOVE HERE
-        self.dustSprite.update(self.world_shift)
-        self.backgroundSprites.update(self.world_shift)
-        self.boxesSprites.update(self.world_shift)
-        self.dustSprite.update(self.world_shift)
-        self.coinsSprites.update(self.world_shift)
-        self.EnemySprites.update(self.world_shift)
-        self.constraintSprites.update(self.world_shift)
-        self.decorationSprites.update(self.world_shift)
-        self.luckyBlocksSprites.update(self.world_shift)
-        self.goal.update(self.world_shift)
-        self.JoJoText.update(self.world_shift)
-        self.JoJoText2.update(self.world_shift)
-        print("Moving things at this speed: "+str(self.world_shift))
+        self.dustSprite.update(self.worldShiftX, self.worldShiftY)
+        self.backgroundSprites.update(self.worldShiftX, self.worldShiftY)
+        self.boxesSprites.update(self.worldShiftX, self.worldShiftY)
+        self.dustSprite.update(self.worldShiftX, self.worldShiftY)
+        self.coinsSprites.update(self.worldShiftX, self.worldShiftY)
+        self.EnemySprites.update(self.worldShiftX, self.worldShiftY)
+        self.constraintSprites.update(self.worldShiftX, self.worldShiftY)
+        self.decorationSprites.update(self.worldShiftX, self.worldShiftY)
+        self.luckyBlocksSprites.update(self.worldShiftX, self.worldShiftY)
+        self.goal.update(self.worldShiftX, self.worldShiftY)
+        self.JoJoText.update(self.worldShiftX, self.worldShiftY)
+        self.JoJoText2.update(self.worldShiftX, self.worldShiftY)
+        print("Moving things at this speed: " + str(self.worldShiftX) + ", " + str(self.worldShiftY))
     def newLife(self):
         if self.coins>=100:
             self.coins=0
@@ -313,6 +335,7 @@ class Level:
         if not self.initScrolled:
             self.initialScroll()
         self.scrollX()
+        self.scrollY()
 
 
 
