@@ -11,7 +11,7 @@ class Node(pygame.sprite.Sprite):
         else:
             self.status=False
         self.rect=self.image.get_rect(center=pos)
-        self.checkPoint=pygame.Rect(self.rect.centerx-(playerSpeed/2),self.rect.centery-(playerSpeed/2),playerSpeed,playerSpeed)
+        self.checkPoint=pygame.Rect(self.rect.centerx-(playerSpeed/2),self.rect.centery-(playerSpeed),playerSpeed,playerSpeed)
     def update(self):
         if self.status:
             self.image=scale(pygame.image.load(self.path),150,130).convert_alpha()
@@ -38,7 +38,7 @@ class Overworld:
 
         #Player things
         self.moveDirection=pygame.math.Vector2(0,0)
-        self.speed=6
+        self.speed=12
         self.moving=False
         #Assets
         self.setupNodes()
@@ -102,7 +102,7 @@ class Overworld:
         if not self.allowInput:
             currentTime=pygame.time.get_ticks()
             if currentTime-self.startTime>=self.timerLength:
-                allowInput=True
+                self.allowInput=True
     def run(self):
         self.displaySurface.fill("#008c96")
         self.input()

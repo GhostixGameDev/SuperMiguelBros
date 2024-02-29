@@ -14,12 +14,12 @@ def primaryMonitorSize():
 
 
 verticalTileNumber=11
-tile_size = 64
+
 if firstTime:
     screenWidth = primaryMonitorSize()[0]
 else:
     screenWidth=width
-screenheight = verticalTileNumber*tile_size
+screenheight = verticalTileNumber * tileSizeScaled
 
 Level0={
     "background": "../levels/0/level_0_background.csv",
@@ -64,6 +64,17 @@ Level3={
     "enemys":"../levels/3/level_3_enemys.csv",
     "luckyblocks":"../levels/3/level_3_luckyblocks.csv",
     "decoration":"../levels/3/level_3_windows and doors.csv"
+}
+Level4={
+    "background": "../levels/4/level_4_background.csv",
+    "boxes":"../levels/4/level_4_boxes.csv",
+    "coins":"../levels/4/level_4_coins.csv",
+    "constraints":"../levels/4/level_4_constraints.csv",
+    "constraints2":"../levels/4/level_4_constraints2.csv",
+    "constraints3": "../levels/4/level_4_constraints3.csv",
+    "enemys":"../levels/4/level_4_enemys.csv",
+    "luckyblocks":"../levels/4/level_4_luckyblocks.csv",
+    "decoration":"../levels/4/level_4_windows and doors.csv"
 }
 
 

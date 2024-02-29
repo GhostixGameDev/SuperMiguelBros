@@ -1,6 +1,6 @@
 import pygame
-from levelEditor import tile_size
-from miscFunctions import scale, importFolderImages
+from miscFunctions import scale, importFolderImages, scaleList
+from configLoader import tileSizeScaled
 
 
 class Tile(pygame.sprite.Sprite):
@@ -13,7 +13,7 @@ class Tile(pygame.sprite.Sprite):
 class staticTile(Tile):
     def __init__(self,size,x,y,surface):
         super().__init__(size,x,y)
-        self.image=surface
+        self.image=scale(surface,tileSizeScaled,tileSizeScaled)
     def update(self,x_shift):
         self.rect.x +=x_shift
 
@@ -21,6 +21,7 @@ class animatedTile(Tile):
     def __init__(self,size,x,y,path):
         super().__init__(size,x,y)
         self.frames=importFolderImages(path)
+        self.frames=scaleList(self.frames,tileSizeScaled,tileSizeScaled)
         self.frameIndex=0
         self.image=self.frames[self.frameIndex]
     def animate(self):

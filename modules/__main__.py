@@ -32,7 +32,7 @@ class Game:
         self.gameMusic=pygame.mixer.Sound("../assets/music/game.ogg")
         self.winSound=pygame.mixer.Sound("../assets/sounds/victory.ogg")
         #player things
-        self.maxLevel=1
+        self.maxLevel=5
         self.lives=3
         self.coins=0
         #overworld things
@@ -40,7 +40,7 @@ class Game:
         self.status=0
         self.gameMusic.play(-1)
         self.UI=UI(self.surface)
-        self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
+        self.overworld = Overworld(4, self.maxLevel, self.surface, self.createLevel)
 
     def createLevel(self,currentLevel):
         self.levelMap = Level(currentLevel, self.surface,self.createOverworld,self.updateCoins,self.coins,self.updateLives,self.createLevel)

@@ -4,7 +4,7 @@ from screeninfo import get_monitors
 from os import walk
 from csv import reader
 
-from levelEditor import tile_size
+from levelEditor import tileSize
 
 
 def posinega(numero):
@@ -16,6 +16,11 @@ def posinega(numero):
         return 0
 def scale(imagen,scalex,scaley):
     return transform.scale(imagen,(scalex,scaley))
+def scaleList(list,scalex,scaley):
+    for i in range(0,len(list)):
+        list[i] = scale(list[i],scalex,scaley)
+    return list
+
 def primaryMonitorSize():
     size=[0,0]
     primary=0
@@ -45,14 +50,14 @@ def importCsvLayout(path):
 
 def importCutSpritesheet(path):
     surface=pygame.image.load(path).convert_alpha()
-    tileNumX=int(surface.get_size()[0]/tile_size)
-    tileNumY=int(surface.get_size()[1]/tile_size)
+    tileNumX=int(surface.get_size()[0]/tileSize)
+    tileNumY=int(surface.get_size()[1]/tileSize)
     cutTiles=[]
     for row in range(tileNumY):
         for col in range(tileNumX):
-            x=col*tile_size
-            y=row*tile_size
-            newSurface=pygame.Surface((tile_size,tile_size),flags=pygame.SRCALPHA)
-            newSurface.blit(surface,(0,0),pygame.Rect(x,y,tile_size,tile_size))
+            x=col*tileSize
+            y=row*tileSize
+            newSurface=pygame.Surface((tileSize,tileSize),flags=pygame.SRCALPHA)
+            newSurface.blit(surface,(0,0),pygame.Rect(x,y,tileSize,tileSize))
             cutTiles.append(newSurface)
     return cutTiles

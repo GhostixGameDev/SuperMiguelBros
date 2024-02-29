@@ -1,7 +1,8 @@
 import pygame
-from miscFunctions import scale
+from miscFunctions import scale as scaleF
 from miscFunctions import importFolderImages
 from math import sin
+from configLoader import tileSize,scale,tileSizeScaled
 class Player(pygame.sprite.Sprite):
     def __init__(self,pos,surface,createJumpParticles,updateLives):
         super().__init__()
@@ -18,13 +19,14 @@ class Player(pygame.sprite.Sprite):
         self.image=self.animations["idle"][self.frameIndex]
         self.rect=self.image.get_rect(topleft=pos)
         self.direction=pygame.math.Vector2(0,0)
-        self.speed=4
-        self.gravity=0.8
-        self.jump_speed=-16
+        self.speed=4*scale
+        self.gravity=0.8*scale
+        self.jump_speed=-16*scale
         self.onground=True
         self.invincible=False
         self.invincibilityDuration=2000
         self.hurtTime=0
+        self.forceMove=False
         #audio
         self.jumpSound=pygame.mixer.Sound("../assets/sounds/jump.ogg")
         #Anim States
@@ -37,11 +39,11 @@ class Player(pygame.sprite.Sprite):
             fullPath = spritesPath+animation
             self.animations[animation]=importFolderImages(fullPath)
         for i in range(len(self.animations["idle"])):
-            self.animations["idle"][i]=scale(self.animations["idle"][i],64,64)
+            self.animations["idle"][i]=scaleF(self.animations["idle"][i],tileSizeScaled, tileSizeScaled)
         for i in range(len(self.animations["run"])):
-            self.animations["run"][i]=scale(self.animations["run"][i],64,64)
+            self.animations["run"][i]=scaleF(self.animations["run"][i],tileSizeScaled, tileSizeScaled)
         for i in range(len(self.animations["jump"])):
-            self.animations["jump"][i] = scale(self.animations["jump"][i], 64, 64)
+            self.animations["jump"][i] = scaleF(self.animations["jump"][i], tileSizeScaled, tileSizeScaled)
     def importDustParticles(self):
         spritesPath="../assets/sprites/particles/dust/"
         self.dustParticles={"run":[],"land":[],"jump":[]}
@@ -49,11 +51,11 @@ class Player(pygame.sprite.Sprite):
             fullPath = spritesPath+animation
             self.dustParticles[animation]=importFolderImages(fullPath)
         for i in range(len(self.dustParticles["run"])):
-            self.dustParticles["run"][i]=scale(self.dustParticles["run"][i],16,16)
+            self.dustParticles["run"][i]=scaleF(self.dustParticles["run"][i],tileSizeScaled/4, tileSizeScaled/4)
         for i in range(len(self.dustParticles["land"])):
-            self.dustParticles["land"][i]=scale(self.dustParticles["land"][i],16,16)
+            self.dustParticles["land"][i]=scaleF(self.dustParticles["land"][i],tileSizeScaled/4, tileSizeScaled/4)
         for i in range(len(self.dustParticles["jump"])):
-            self.dustParticles["jump"][i] = scale(self.dustParticles["jump"][i], 16, 16)
+            self.dustParticles["jump"][i] = scaleF(self.dustParticles["jump"][i], tileSizeScaled/4, tileSizeScaled/4)
 
     def animateDust(self):
         animation = self.dustParticles[self.dustState]
@@ -93,7 +95,7 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_a]:
             self.direction.x=-1
             self.facingRight=False
-        else:
+        elif not self.forceMove:
             self.direction.x=0
         if keys[pygame.K_SPACE] or keys[pygame.K_w]:
             if self.onground:

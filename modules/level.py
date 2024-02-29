@@ -18,6 +18,7 @@ class Level:
         self.newMaxLevel=levelMeta["unlock"]
         self.createOverworld=createOverworld
         self.createLevel=createLevel
+        self.initScrolled=0
         #Player
         playerLayout= importCsvLayout(leveldata["constraints3"])
         self.player=pygame.sprite.GroupSingle()
@@ -72,15 +73,15 @@ class Level:
         for rowIndex,row in enumerate(layout):
                 for colIndex,col in enumerate(row):
                     if col!="-1":
-                        x=colIndex*tile_size
-                        y=rowIndex*tile_size
+                        x= colIndex * tileSizeScaled
+                        y= rowIndex * tileSizeScaled
                         if type=="boxes":
-                            sprite=box(tile_size,x,y)
+                            sprite=box(tileSizeScaled, x, y)
 
                         if type=="background":
                             backgroundTileList=importCutSpritesheet("../assets/sprites/background/tiles/backgroundTiles.png")
                             tileSurface=backgroundTileList[int(col)]
-                            sprite=staticTile(tile_size,x,y,tileSurface)
+                            sprite=staticTile(tileSizeScaled, x, y, tileSurface)
 
                         if type=="coins":
                             coinpath=""
@@ -91,17 +92,17 @@ class Level:
                             else:
                                 coinpath="../assets/sprites/objects/coins/silver"
                                 value=1
-                            sprite=coin(tile_size,x,y,coinpath,value)
+                            sprite=coin(tileSizeScaled, x, y, coinpath, value)
                         if type=="decoration":
                             decoTileList=importCutSpritesheet("../assets/sprites/background/tiles/backgroundTiles.png")
                             tileSurface=decoTileList[int(col)]
-                            sprite=staticTile(tile_size,x,y,tileSurface)
+                            sprite=staticTile(tileSizeScaled, x, y, tileSurface)
                         if type=="enemys":
-                            sprite=enemy(tile_size,x,y)
+                            sprite=enemy(tileSizeScaled, x, y)
                         if type=="constraints":
-                            sprite=Tile(tile_size,x,y)
+                            sprite=Tile(tileSizeScaled, x, y)
                         if type=="constraints2":
-                            sprite=Tile(tile_size,x,y)
+                            sprite=Tile(tileSizeScaled, x, y)
                         if type== "luckyblocks":
                             if col=="1":
                                 blockpath="../assets/sprites/objects/luckyblock/sliced/luckyBlock02.png"
@@ -109,7 +110,7 @@ class Level:
                             else:
                                 blockpath = "../assets/sprites/objects/luckyblock/sliced/luckyBlock01.png"
                                 state = 1
-                            sprite=luckyblock(tile_size,x,y,blockpath,state)
+                            sprite=luckyblock(tileSizeScaled, x, y, blockpath, state)
 
 
 
@@ -119,13 +120,13 @@ class Level:
     def playerSetup(self,layout):
         for rowIndex, row in enumerate(layout):
             for colIndex, col in enumerate(row):
-                x = colIndex * tile_size
-                y = rowIndex * tile_size
+                x = colIndex * tileSize
+                y = rowIndex * tileSize
                 if col=="2":
                     sprite = Player((x,y),self.display_surface,self.createJumpParticles,self.updateLives)
                     self.player.add(sprite)
                 if col=="3":
-                    sprite=goal(tile_size,x,y)
+                    sprite=goal(tileSize, x, y)
                     self.goal.add(sprite)
     def checkPlayerDownMap(self):
         if self.player.sprite.rect.top>screenheight:
@@ -157,19 +158,44 @@ class Level:
             self.dustSprite.add(landDustParticle)
     def scrollX(self):
         player = self.player.sprite
-        player_x=player.rect.centerx
-        direction_x=player.direction.x
+        playerX=player.rect.centerx
+        directionX=player.direction.x
 
-        if player_x<screenWidth / 4 and direction_x<0:
+        if playerX<screenWidth /4 and directionX<0:
             self.world_shift=4
-            player.speed=0
-        elif player_x>screenWidth - (screenWidth/4) and direction_x>0:
+            player.rect.centerx=player.rect.centerx+scale#*2
+            player.speed=1
+        elif playerX>screenWidth - (screenWidth/4) and directionX>0:
             self.world_shift=-4
-            player.speed=0
-        else:
+            player.rect.centerx = player.rect.centerx - scale
+            player.speed=1
+        elif self.initScrolled==1:
             self.world_shift=0
             player.speed=4
 
+    def initialScroll(self):
+        player = self.player.sprite
+        playerX = player.rect.centerx
+        originalSpeed=player.speed
+
+        if playerX > screenWidth-500*scale:
+            #print("moving left")
+            self.world_shift = -64
+            player.rect.centerx = player.rect.centerx - scale
+            player.direction.x=-1
+            player.gravity=0
+            player.forceMove=True
+            player.invincible=True
+            player.speed = 63*scale
+            #print(player.rect.x)
+        else:
+            #print("im not init moving")
+            self.initScrolled=1
+            player.forceMove=False
+            player.invincible=False
+            self.world_shift = 0
+            player.speed = originalSpeed
+            player.gravity= 0.8*scale
     def enemyCollisionReverse(self):
         for enemy in self.EnemySprites.sprites():
             if pygame.sprite.spritecollide(enemy,self.constraintSprites,False):
@@ -232,7 +258,21 @@ class Level:
 
                 else:
                     self.player.sprite.getDamage()
-
+    def moveAll(self):
+        #PUT ALL THINGS YOU WANT THE CAMERA TO MOVE HERE
+        self.dustSprite.update(self.world_shift)
+        self.backgroundSprites.update(self.world_shift)
+        self.boxesSprites.update(self.world_shift)
+        self.dustSprite.update(self.world_shift)
+        self.coinsSprites.update(self.world_shift)
+        self.EnemySprites.update(self.world_shift)
+        self.constraintSprites.update(self.world_shift)
+        self.decorationSprites.update(self.world_shift)
+        self.luckyBlocksSprites.update(self.world_shift)
+        self.goal.update(self.world_shift)
+        self.JoJoText.update(self.world_shift)
+        self.JoJoText2.update(self.world_shift)
+        print("Moving things at this speed: "+str(self.world_shift))
     def newLife(self):
         if self.coins>=100:
             self.coins=0
@@ -243,40 +283,40 @@ class Level:
     def run(self):
         self.display_surface.fill((0,0,0))
         #Particle loader
-        self.dustSprite.update(self.world_shift)
         self.dustSprite.draw(self.display_surface)
 
         #Level tilemap
         self.backgroundSprites.draw(self.display_surface)
-        self.backgroundSprites.update(self.world_shift)
+
         #dust
-        self.dustSprite.update(self.world_shift)
         self.dustSprite.draw(self.display_surface)
+
         #boxes
         self.boxesSprites.draw(self.display_surface)
-        self.boxesSprites.update(self.world_shift)
+
         #coins
         self.coinsSprites.draw(self.display_surface)
-        self.coinsSprites.update(self.world_shift)
+
         #enemys
         self.EnemySprites.draw(self.display_surface)
-        self.EnemySprites.update(self.world_shift)
+
         #constraints
-        self.constraintSprites.update(self.world_shift)
         self.enemyCollisionReverse()
         #decoration
         self.decorationSprites.draw(self.display_surface)
-        self.decorationSprites.update(self.world_shift)
+
         #LuckyBlocks
         self.luckyBlocksSprites.draw(self.display_surface)
-        self.luckyBlocksSprites.update(self.world_shift)
+
         #Camera
+        self.moveAll()
+        if not self.initScrolled:
+            self.initialScroll()
         self.scrollX()
 
 
 
         #Player
-        self.goal.update(self.world_shift)
         self.player.update()
         self.goal.draw(self.display_surface)
         self.player.draw(self.display_surface)
@@ -285,8 +325,7 @@ class Level:
         self.checkCoinCollision()
         self.newLife()
         self.checkEnemyCollisions()
-        self.JoJoText.update(self.world_shift)
-        self.JoJoText2.update(self.world_shift)
+
 
         if not self.stopJojo:
             self.stopJojo = self.JoJoText.textTimer()
