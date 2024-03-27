@@ -22,11 +22,13 @@ from gameData import *
 from miscFunctions import *
 from configLoader import *
 from UI import UI
+from menu import mainMenu
 
 #Classes
 
 class Game:
-    def __init__(self,surface):
+    def __init__(self,surface,version):
+        self.surface=surface
         #audio
         pygame.mixer.init()
         self.gameMusic=pygame.mixer.Sound("../assets/music/game.ogg")
@@ -35,8 +37,10 @@ class Game:
         self.maxLevel=5
         self.lives=3
         self.coins=0
+        #Menu things
+        self.version=version
+        self.menu=mainMenu(self.surface,self.version)
         #overworld things
-        self.surface=surface
         self.status=0
         self.gameMusic.play(-1)
         self.UI=UI(self.surface)
@@ -44,7 +48,7 @@ class Game:
 
     def createLevel(self,currentLevel):
         self.levelMap = Level(currentLevel, self.surface,self.createOverworld,self.updateCoins,self.coins,self.updateLives,self.createLevel)
-        self.status=1
+        self.status=2
     def createOverworld(self,currentLevel,newMaxLevel,win=False):
         if newMaxLevel>self.maxLevel:
             self.maxLevel=newMaxLevel
@@ -52,16 +56,16 @@ class Game:
             self.winSound.play()
 
         self.overworld = Overworld(currentLevel,self.maxLevel,self.surface,self.createLevel)
-        self.status=0
+        self.status=1
     def updateCoins(self,amount):
         self.coins=amount
     def updateLives(self,amount):
         self.lives+=amount
     def run(self):
-        if self.status==0:
+        if self.status==1:
             self.overworld.run()
             self.UI.showCoin(self.coins, 20, 10)
-        else:
+        elif self.status==2:
             self.levelMap.run()
             self.UI.showLives(self.lives, 20, 10)
             self.UI.showCoin(self.coins, 20, 90)
@@ -71,6 +75,8 @@ class Game:
                 self.coins=0
                 self.maxLevel=0
                 self.overworld = Overworld(0, self.maxLevel, self.surface, self.createLevel)
+        else:
+            self.menu.run()
 #==========================================================
 
 gameVer="Alpha 1.0.1"
@@ -84,7 +90,7 @@ def main(gameVer):
     else:
         screen = pygame.display.set_mode((width, height))
     MaxFPS = 60
-    game = Game(screen)
+    game = Game(screen,gameVer)
     TargetFPS = 60
     pygame.init()
     pygame.display.set_caption("Super Miguel Bros v"+gameVer)

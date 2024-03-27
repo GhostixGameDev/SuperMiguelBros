@@ -294,7 +294,7 @@ class Level:
         self.goal.update(self.worldShiftX, self.worldShiftY)
         self.JoJoText.update(self.worldShiftX, self.worldShiftY)
         self.JoJoText2.update(self.worldShiftX, self.worldShiftY)
-        print("Moving things at this speed: " + str(self.worldShiftX) + ", " + str(self.worldShiftY))
+        #print("Moving things at this speed: " + str(self.worldShiftX) + ", " + str(self.worldShiftY))
     def newLife(self):
         if self.coins>=100:
             self.coins=0
